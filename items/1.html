@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+    <title>Item 1 Market</title>
+    <meta name="color-scheme" content="light dark"/>
+    <style>
+        :root {
+            --bg: #f5f7fa;
+            --bg-alt: #ffffff;
+            --text: #1d2731;
+            --border: #d9e2ea;
+            --accent: #1664d9;
+            --accent-fg: #fff;
+            --warn: #b85600;
+            --danger: #b00020;
+            --radius: 14px;
+            --radius-sm: 8px;
+            --shadow: 0 2px 4px rgba(0, 0, 0, .06);
+            --grid-gap: 14px;
+            --chart-height: 300px;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
+            color-scheme: light dark;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0f1821;
+                --bg-alt: #16232f;
+                --text: #d8e2ec;
+                --border: #2b4254;
+                --accent: #388ff7;
+                --accent-fg: #fff;
+                --shadow: 0 2px 6px -1px rgba(0, 0, 0, .55);
+                --warn: #ffb347;
+                --danger: #ff6b81;
+            }
+        }
+
+        @media (max-width: 720px) {
+            :root {
+                --chart-height: 240px;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            -webkit-text-size-adjust: 100%;
+        }
+
+        header {
+            padding: 28px 18px 10px;
+        }
+
+        .container {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 18px 60px;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: clamp(1.6rem, 2.4vw, 2.2rem);
+            letter-spacing: .5px;
+        }
+
+        .subtitle {
+            margin: 0 0 24px;
+            font-size: 14px;
+            opacity: .75;
+        }
+
+        .flex-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--grid-gap);
+        }
+
+        .card {
+            background: var(--bg-alt);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            position: relative;
+            flex: 1 1 200px;
+            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .card.compact {
+            padding: 12px 14px;
+        }
+
+        .card h2 {
+            margin: 0 0 8px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .metric {
+            font-size: 24px;
+            font-weight: 600;
+            line-height: 1.1;
+        }
+
+        .label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            opacity: .65;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--accent-fg);
+            padding: 2px 10px 3px;
+            border-radius: 999px;
+            font-size: 11px;
+            letter-spacing: .5px;
+            font-weight: 600;
+        }
+
+        .warning {
+            background: linear-gradient(90deg, #ffe8c2, #ffe1b3);
+            color: #5a3b00;
+            border: 1px solid #ffd08a;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .warning {
+                background: #37230a;
+                color: #ffddad;
+                border-color: #5b4122;
+            }
+        }
+
+        .low-volume {
+            color: var(--danger);
+            font-weight: 600;
+            font-size: 13px;
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .grid {
+            display: grid;
+            gap: var(--grid-gap);
+        }
+
+        .stats-grid {
+            grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+        }
+
+        section {
+            margin-bottom: 38px;
+        }
+
+        .timeframe-switch {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 8px 0 14px;
+        }
+
+        .timeframe-switch button {
+            cursor: pointer;
+            background: var(--bg-alt);
+            border: 1px solid var(--border);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: .4px;
+            color: var(--text);
+            transition: background .15s, border-color .15s, color .15s;
+        }
+
+        .timeframe-switch button.active {
+            background: var(--accent);
+            color: var(--accent-fg);
+            border-color: var(--accent);
+        }
+
+        .timeframe-switch button:hover:not(.active) {
+            background: #e6eef7;
+        }
+
+        .timeframe-switch button.disabled {
+            opacity: .35;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .timeframe-switch button.disabled.active {
+            background: var(--accent);
+            opacity: .6;
+            color: var(--accent-fg);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .timeframe-switch button:hover:not(.active) {
+                background: #203445;
+            }
+        }
+
+        .chart-wrapper {
+            background: var(--bg-alt);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px 18px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        /* Add tooltip styling */
+        .chart-tooltip {
+            position: absolute;
+            pointer-events: none;
+            background: rgba(28, 39, 52, .94);
+            color: #fff;
+            font-size: 12px;
+            padding: 6px 8px;
+            border-radius: 6px;
+            line-height: 1.25;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, .35);
+            transform: translate(-50%, -115%);
+            white-space: nowrap;
+            border: 1px solid rgba(255, 255, 255, .15);
+            backdrop-filter: blur(4px);
+        }
+
+        .chart-tooltip::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 100%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border: 6px solid transparent;
+            border-top-color: rgba(28, 39, 52, .94);
+        }
+
+        @media (prefers-color-scheme: light) {
+            .chart-tooltip {
+                background: rgba(255, 255, 255, .96);
+                color: #1b2a35;
+                border: 1px solid #d4dee7;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, .18);
+            }
+
+            .chart-tooltip::after {
+                border-top-color: rgba(255, 255, 255, .96);
+            }
+        }
+
+        .chart-wrapper.interacting canvas {
+            cursor: crosshair;
+        }
+
+        .timeframe-switch button:active {
+            transform: translateY(1px);
+        }
+
+        /* Restore icon-warn style */
+        .icon-warn {
+            width: 16px;
+            height: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--warn);
+            color: #000;
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        /* Make canvases responsive via CSS height variable */
+        .chart-wrapper canvas {
+            width: 100%;
+            height: var(--chart-height);
+            /* JS sets internal pixel size */
+        }
+
+        /* Slight spacing polish */
+        .small-note {
+            margin-top: 6px;
+        }
+
+        .chart-header {
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        #lowVolumeBanner { margin-bottom:24px; }
+        #lowVolumeBanner .caution-note { margin-top:4px; font-style:italic; opacity:.85; line-height:1.3; }
+    </style>
+</head>
+<body>
+<header class="container">
+    <h1 id="itemName">Loading…</h1>
+    <p class="subtitle" id="itemSubtitle"></p>
+</header>
+<main class="container" id="app" hidden>
+    <section id="summary">
+        <div id="lowVolumeBanner" class="card warning" style="display:none;">
+            <div class="low-volume"><span class="icon-warn">!</span><span>This item has low volume, prices may be inaccurate.</span></div>
+            <div class="small-note" id="lowVolDetails"></div>
+            <div class="caution-note">Low-volume markets can shift sharply. Use extra caution when referencing these prices; a single trade can significantly skew averages and recent trends.</div>
+        </div>
+        <div class="flex-row" id="summaryCards"></div>
+    </section>
+
+    <section id="charts" style="display:none;">
+        <div class="chart-wrapper" id="priceChartWrap">
+            <div class="chart-header">
+                <h3>Price History (<span id="priceTfLabel">1d</span>)</h3>
+                <div class="timeframe-switch" data-chart="price">
+                    <button data-tf="1d" class="active">1d</button>
+                    <button data-tf="7d">7d</button>
+                    <button data-tf="30d">30d</button>
+                    <button data-tf="90d">90d</button>
+                    <button data-tf="1y">1y</button>
+                </div>
+            </div>
+            <canvas id="priceChart" class="chart-canvas" aria-label="Price history chart" role="img"></canvas>
+            <div class="chart-tooltip" id="priceTooltip" hidden></div>
+            <div class="small-note" id="priceChartNote"></div>
+        </div>
+
+        <div class="chart-wrapper" id="volumeChartWrap" style="margin-top:24px;">
+            <div class="chart-header">
+                <h3>Volume History (<span id="volumeTfLabel">1d</span>)</h3>
+                <div class="timeframe-switch" data-chart="volume">
+                    <button data-tf="1d" class="active">1d</button>
+                    <button data-tf="7d">7d</button>
+                    <button data-tf="30d">30d</button>
+                    <button data-tf="90d">90d</button>
+                    <button data-tf="1y">1y</button>
+                </div>
+            </div>
+            <canvas id="volumeChart" class="chart-canvas" aria-label="Volume history chart" role="img"></canvas>
+            <div class="chart-tooltip" id="volumeTooltip" hidden></div>
+            <div class="small-note" id="volumeChartNote"></div>
+        </div>
+    </section>
+
+    <div class="footer">Generated page • <span class="code">item_id.html</span> template</div>
+</main>
+
+<script>
+// ITEM_DATA injected by Rust build replacing {"category":null,"currentOffers":null,"itemId":1,"lastSoldPrice":20,"lowVolumeThreshold":5,"name":"Item 1","stats24h":{"avg":20.0,"lastBuyOfferTime":"2025-10-04T07:15:04.357562+00:00","lastPrice":20,"lastSellOfferTime":"2025-10-04T07:15:04.357562+00:00","max":20,"median":20.0,"min":20,"trades":1,"volume":1},"timeframes":{"1d":{"prices":[20],"timestamps":[1759562104357],"volumes":[1]},"30d":{"prices":[20],"timestamps":[1759562104357],"volumes":[1]},"7d":{"prices":[20],"timestamps":[1759562104357],"volumes":[1]},"90d":{"prices":[20],"timestamps":[1759562104357],"volumes":[1]}}}
+const ITEM_DATA = {"category":null,"currentOffers":null,"itemId":1,"lastSoldPrice":20,"lowVolumeThreshold":5,"name":"Item 1","stats24h":{"avg":20.0,"lastBuyOfferTime":"2025-10-04T07:15:04.357562+00:00","lastPrice":20,"lastSellOfferTime":"2025-10-04T07:15:04.357562+00:00","max":20,"median":20.0,"min":20,"trades":1,"volume":1},"timeframes":{"1d":{"prices":[20],"timestamps":[1759562104357],"volumes":[1]},"30d":{"prices":[20],"timestamps":[1759562104357],"volumes":[1]},"7d":{"prices":[20],"timestamps":[1759562104357],"volumes":[1]},"90d":{"prices":[20],"timestamps":[1759562104357],"volumes":[1]}}};
+
+(function(){
+    // ---------- DOM ELEMENTS ----------
+    const elApp = document.getElementById('app');
+    const elItemName = document.getElementById('itemName');
+    const elItemSubtitle = document.getElementById('itemSubtitle');
+    const elSummaryCards = document.getElementById('summaryCards');
+    const elLowBanner = document.getElementById('lowVolumeBanner');
+    const elLowDetails = document.getElementById('lowVolDetails');
+    const chartsSection = document.getElementById('charts');
+    const priceChart = document.getElementById('priceChart');
+    const volumeChart = document.getElementById('volumeChart');
+    const priceTfLabel = document.getElementById('priceTfLabel');
+    const volumeTfLabel = document.getElementById('volumeTfLabel');
+    const priceChartNote = document.getElementById('priceChartNote');
+    const volumeChartNote = document.getElementById('volumeChartNote');
+    const priceTooltip = document.getElementById('priceTooltip');
+    const volumeTooltip = document.getElementById('volumeTooltip');
+    const priceWrap = document.getElementById('priceChartWrap');
+    const volumeWrap = document.getElementById('volumeChartWrap');
+
+    // ---------- CONSTANTS & DATA ----------
+    const TF_ORDER = ['1d','7d','30d','90d','1y'];
+    const timeframes = ITEM_DATA.timeframes || {}; // { tf: {timestamps, prices, volumes} }
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const PALETTE = prefersDark ?
+        { grid:'#294153', text:'#cbd6df', line:'#4ea2ff', bar:'#2d82da', bg:'#16232f'} :
+        { grid:'#d8e2eb', text:'#2b3a46', line:'#1664d9', bar:'#388ff7', bg:'#ffffff'};
+    const CHART_LAYOUT = { line:{padLeft:50,padRight:10,padTop:20,padBottom:28}, bar:{padLeft:50,padRight:10,padTop:10,padBottom:28} };
+
+    // State
+    let currentPriceTf = pickFirstExisting(['1d','24h','7d','30d','90d','1y']);
+    let currentVolumeTf = currentPriceTf;
+    let highlightPriceIndex = null;
+    let highlightVolumeIndex = null;
+
+    // ---------- HELPERS ----------
+    function pickFirstExisting(list){ for(const tf of list){ const norm = normalizeTf(tf); const d=timeframes[norm]; if(d && ((d.prices&&d.prices.length)||(d.volumes&&d.volumes.length))) return norm; } return '1d'; }
+    function normalizeTf(tf){ return tf==='24h' ? '1d' : tf; }
+    function fmt(n, dpAuto=true){ if(n==null) return '-'; if(typeof n==='number') return n.toLocaleString(undefined,{maximumFractionDigits:(dpAuto?(Number.isInteger(n)?0:2):2)}); return String(n); }
+    function fmtTime(iso){ if(!iso) return '-'; return iso.replace('T',' ').replace('Z',' UTC'); }
+    function labelFor(ts, tf){ if(!ts || typeof ts!=='number') return ''; const d=new Date(ts); switch(tf){ case '1d': return d.getHours()+':00'; case '7d': return d.toLocaleDateString(undefined,{weekday:'short'}); case '30d': case '90d': return (d.getMonth()+1)+'/'+d.getDate(); case '1y': return d.toLocaleDateString(undefined,{month:'short'}); default: return d.toLocaleDateString(); } }
+    function hasChartData(){ return TF_ORDER.some(tf=>{const d=timeframes[tf]; return d && d.prices && d.prices.length;}); }
+    function hasVolumeData(){ return TF_ORDER.some(tf=>{const d=timeframes[tf]; return d && d.volumes && d.volumes.length;}); }
+
+    // ---------- SUMMARY RENDER ----------
+    function buildCard(title, primary, pairs){
+        if(primary==null||primary==='-') primary='-';
+        return `<div class="card compact"><div class="label">${title}</div><div class="metric">${primary}</div>`+
+               (pairs&&pairs.length?`<div class='separator'></div>${pairs.map(p=>`<div class='inline-pair'><span>${p[0]}</span><span>${p[1]}</span></div>`).join('')}`:'')+
+               `</div>`;
+    }
+    function renderSummary(){
+        const stats24 = ITEM_DATA.stats24h || null;
+        const lastSold = ITEM_DATA.lastSoldPrice ?? (stats24 && stats24.lastPrice) ?? null;
+        const cards=[];
+        if(lastSold!=null || (stats24 && (stats24.min!=null||stats24.max!=null))){
+            cards.push(buildCard('Last Sold Price', fmt(lastSold), [['24h Min', fmt(stats24&&stats24.min)], ['24h Max', fmt(stats24&&stats24.max)]]));
+        }
+        if(stats24){
+            cards.push(buildCard('24h Stats', fmt(stats24.avg), [['Median', fmt(stats24.median)], ['Volume', fmt(stats24.volume)], ['Trades', fmt(stats24.trades)]]));
+            if(typeof stats24.trades==='number' && stats24.trades < (ITEM_DATA.lowVolumeThreshold??5)){
+                elLowBanner.style.display='block';
+                elLowDetails.textContent=`Trades last 24h: ${stats24.trades}`;
+            }
+        }
+        const co = ITEM_DATA.currentOffers;
+        if(co && (co.avg!=null || co.min!=null)){
+            cards.push(buildCard('Current Offers', fmt(co.avg), [['Median', fmt(co.median)], ['Lowest', fmt(co.min)], ['Highest', fmt(co.max)]]));
+        }
+        if(stats24 && (stats24.lastSellOfferTime || stats24.lastBuyOfferTime)){
+            cards.push(buildCard('Last Offer Times','—', [['Last Sell', fmtTime(stats24.lastSellOfferTime||'-')], ['Last Buy', fmtTime(stats24.lastBuyOfferTime||'-')]]));
+        }
+        if(stats24 && stats24.volume!=null){
+            cards.push(buildCard('Daily Volume', fmt(stats24.volume), [['Avg Price', fmt(stats24.avg)], ['Median', fmt(stats24.median)]]));
+        }
+        elSummaryCards.innerHTML = cards.join('');
+    }
+
+    // ---------- CANVAS UTILITIES ----------
+    function prepareCanvas(canvas){
+        const rect = canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        const cssW = rect.width; const cssH = rect.height;
+        const targetW = Math.round(cssW*dpr), targetH = Math.round(cssH*dpr);
+        if(canvas.width!==targetW || canvas.height!==targetH){ canvas.width=targetW; canvas.height=targetH; }
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(dpr,0,0,dpr,0,0);
+        return {ctx,w:cssW,h:cssH};
+    }
+    function drawAxes(ctx,w,h,layout,pal){ ctx.strokeStyle=pal.grid; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(layout.padLeft,layout.padTop-5); ctx.lineTo(layout.padLeft,h-layout.padBottom+5); ctx.moveTo(layout.padLeft-5,h-layout.padBottom); ctx.lineTo(w-layout.padRight+2,h-layout.padBottom); ctx.stroke(); }
+
+    // ---------- CHART RENDERING ----------
+    function drawLineChart(canvas,data){
+        const {ctx,w,h}=prepareCanvas(canvas); const {padLeft,padRight,padTop,padBottom}=CHART_LAYOUT.line;
+        ctx.clearRect(0,0,w,h); ctx.font='11px system-ui'; ctx.fillStyle=PALETTE.text;
+        if(!data||!data.prices||!data.prices.length){ ctx.fillText('No data', padLeft, padTop+10); return; }
+        const prices=data.prices, ts=data.timestamps||prices.map((_,i)=>i), n=prices.length, single=n===1; const minP=Math.min(...prices), maxP=Math.max(...prices), range=(maxP-minP)||1;
+        // grid Y
+        for(let i=0;i<=5;i++){ const y=padTop+(h-padTop-padBottom)*(i/5); ctx.strokeStyle=PALETTE.grid; ctx.beginPath(); ctx.moveTo(padLeft,y); ctx.lineTo(w-padRight,y); ctx.stroke(); const val=maxP-range*(i/5); ctx.fillStyle=PALETTE.text; ctx.textAlign='left'; ctx.fillText(fmt(val,false),4,y+4); }
+        // X labels
+        ctx.textAlign='center';
+        if(single){ const xC=padLeft+(w-padLeft-padRight)/2; ctx.fillText(labelFor(ts[0], currentPriceTf), xC, h-8);} else { [0,Math.floor(n/2),n-1].forEach(idx=>{ const frac=idx/(n-1); const x=padLeft+(w-padLeft-padRight)*frac; ctx.fillText(labelFor(ts[idx], currentPriceTf), x, h-8); }); }
+        drawAxes(ctx,w,h,CHART_LAYOUT.line,PALETTE);
+        // line
+        if(!single){ ctx.beginPath(); ctx.lineWidth=2; ctx.strokeStyle=PALETTE.line; prices.forEach((p,i)=>{ const frac=i/(n-1); const x=padLeft+(w-padLeft-padRight)*frac; const y=padTop+(h-padTop-padBottom)*(1-(p-minP)/range); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);}); ctx.stroke(); }
+        // point highlight
+        const hi=(highlightPriceIndex!=null&&highlightPriceIndex<n)?highlightPriceIndex:n-1; const frac= single?0.5: (n>1? hi/(n-1):0.5); const px=padLeft+(w-padLeft-padRight)*frac; const py=padTop+(h-padTop-padBottom)*(1-(prices[hi]-minP)/range);
+        ctx.fillStyle=PALETTE.line; ctx.beginPath(); ctx.arc(px,py,single?6:5,0,Math.PI*2); ctx.fill(); ctx.strokeStyle=PALETTE.bg; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(px,py,single?6:5,0,Math.PI*2); ctx.stroke(); if(single){ ctx.textAlign='left'; ctx.fillStyle=PALETTE.text; ctx.fillText(`Value: ${fmt(prices[0])}`, padLeft+6, padTop+14);} }
+
+    function drawBarChart(canvas,data){
+        const {ctx,w,h}=prepareCanvas(canvas); const {padLeft,padRight,padTop,padBottom}=CHART_LAYOUT.bar;
+        ctx.clearRect(0,0,w,h); ctx.font='11px system-ui'; ctx.fillStyle=PALETTE.text;
+        if(!data||!data.volumes||!data.volumes.length){ ctx.fillText('No data', padLeft, padTop+10); return; }
+        const vols=data.volumes, ts=data.timestamps||vols.map((_,i)=>i), n=vols.length, single=n===1; const maxV=Math.max(...vols)||1;
+        for(let i=0;i<=4;i++){ const y=padTop+(h-padTop-padBottom)*(i/4); ctx.strokeStyle=PALETTE.grid; ctx.beginPath(); ctx.moveTo(padLeft,y); ctx.lineTo(w-padRight,y); ctx.stroke(); const val=Math.round(maxV-maxV*(i/4)); ctx.textAlign='left'; ctx.fillStyle=PALETTE.text; ctx.fillText(val,4,y+4); }
+        ctx.textAlign='center'; if(single){ const xc=padLeft+(w-padLeft-padRight)/2; ctx.fillText(labelFor(ts[0], currentVolumeTf), xc, h-8);} else { [0,Math.floor(n/2),n-1].forEach(idx=>{ const frac=idx/(n-1); const x=padLeft+(w-padLeft-padRight)*frac; ctx.fillText(labelFor(ts[idx], currentVolumeTf), x, h-8); }); }
+        drawAxes(ctx,w,h,CHART_LAYOUT.bar,PALETTE);
+        const availW=w-padLeft-padRight; const barW= single? Math.min(60, availW*0.25): Math.max(2,(availW/n)*0.6);
+        vols.forEach((v,i)=>{ const frac= single?0.5: i/(n-1||1); const xCenter=padLeft+(w-padLeft-padRight)*frac; const hScale=v/maxV; const barH=(h-padTop-padBottom)*hScale; const y=padTop+(h-padTop-padBottom-barH); const x=xCenter-barW/2; ctx.fillStyle=(highlightVolumeIndex===i)?PALETTE.line:PALETTE.bar; ctx.fillRect(x,y,barW,barH); if(single){ ctx.textAlign='left'; ctx.fillStyle=PALETTE.text; ctx.fillText(`Vol: ${fmt(v)}`, padLeft+6, padTop+14);} });
+        if(highlightVolumeIndex!=null && highlightVolumeIndex<n){ const i=highlightVolumeIndex; const v=vols[i]; const frac= single?0.5: i/(n-1||1); const xc=padLeft+(w-padLeft-padRight)*frac; const hScale=v/maxV; const barH=(h-padTop-padBottom)*hScale; const y=padTop+(h-padTop-padBottom-barH); const x=xc-barW/2; ctx.strokeStyle=PALETTE.line; ctx.lineWidth=2; ctx.strokeRect(x-1,y-1,barW+2,barH+2); }
+    }
+
+    function renderCharts(){
+        if(!hasChartData() && !hasVolumeData()){ chartsSection.style.display='none'; return; }
+        chartsSection.style.display='block';
+        drawLineChart(priceChart, timeframes[currentPriceTf]);
+        drawBarChart(volumeChart, timeframes[currentVolumeTf]);
+        priceTfLabel.textContent=currentPriceTf;
+        volumeTfLabel.textContent=currentVolumeTf;
+        const p=timeframes[currentPriceTf]; const v=timeframes[currentVolumeTf];
+        priceChartNote.textContent = !p||!p.prices||!p.prices.length? 'No data' : (p.prices.length===1?'Only 1 point':`Points: ${p.prices.length}`);
+        volumeChartNote.textContent = !v||!v.volumes||!v.volumes.length? 'No data' : (v.volumes.length===1?'Only 1 bar':`Bars: ${v.volumes.length}`);
+    }
+
+    // ---------- INTERACTION ----------
+    function enableInteraction(){ if(!hasChartData() && !hasVolumeData()) return; function handler(kind){ const isPrice= kind==='price'; const canvas=isPrice?priceChart:volumeChart; return function(ev){ const tf=isPrice?currentPriceTf:currentVolumeTf; const data=timeframes[tf]; if(!data) return; const series=isPrice?(data.prices||[]):(data.volumes||[]); const n=series.length; if(!n) return; const rect=canvas.getBoundingClientRect(); const layout=isPrice?CHART_LAYOUT.line:CHART_LAYOUT.bar; const usable=rect.width-layout.padLeft-layout.padRight; let idx=0; if(n>1 && usable>1){ const x=ev.clientX-rect.left; const clamped=Math.min(Math.max(x-layout.padLeft,0), usable); idx=Math.min(n-1, Math.max(0, Math.round((clamped/usable)*(n-1)))); } if(isPrice) highlightPriceIndex=idx; else highlightVolumeIndex=idx; renderCharts(); const tip=isPrice?priceTooltip:volumeTooltip; const ts=data.timestamps&&data.timestamps[idx]; tip.innerHTML=isPrice?`<strong>${fmt(series[idx])}</strong><br><span style='opacity:.75'>${ts?fmtTime(new Date(ts).toISOString()):''}</span>`:`<strong>Vol ${fmt(series[idx])}</strong><br><span style='opacity:.75'>${ts?fmtTime(new Date(ts).toISOString()):''}</span>`; tip.hidden=false; const wrap=isPrice?priceWrap:volumeWrap; const wrect=wrap.getBoundingClientRect(); let tx=ev.clientX-wrect.left; let ty=ev.clientY-wrect.top-8; if(tx<40) tx=40; else if(tx>wrect.width-40) tx=wrect.width-40; if(ty<32) ty=32; tip.style.left=tx+'px'; tip.style.top=ty+'px'; }; } function attach(c,kind){ const mv=handler(kind); c.addEventListener('pointerdown',e=>{c.setPointerCapture(e.pointerId); mv(e);}); c.addEventListener('pointermove',e=>{ if(c.hasPointerCapture(e.pointerId)) mv(e);}); ['pointerup','pointerleave','pointercancel'].forEach(ev=> c.addEventListener(ev,()=>{ if(kind==='price'){highlightPriceIndex=null; priceTooltip.hidden=true;} else {highlightVolumeIndex=null; volumeTooltip.hidden=true;} renderCharts(); })); } attach(priceChart,'price'); attach(volumeChart,'volume'); }
+
+    // ---------- TIMEFRAME BUTTON STATE ----------
+    function initTimeframeButtons(){ document.querySelectorAll('.timeframe-switch').forEach(group=>{ const chart=group.dataset.chart; group.querySelectorAll('button[data-tf]').forEach(btn=>{ const tf=normalizeTf(btn.dataset.tf); const has = !!timeframes[tf] && ((timeframes[tf].prices&&timeframes[tf].prices.length)||(timeframes[tf].volumes&&timeframes[tf].volumes.length)); if(!has){ btn.classList.add('disabled'); btn.setAttribute('aria-disabled','true'); } btn.addEventListener('click',()=>{ if(btn.classList.contains('disabled')) return; if(chart==='price'){ currentPriceTf=tf; highlightPriceIndex=null; } else { currentVolumeTf=tf; highlightVolumeIndex=null; } group.querySelectorAll('button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); renderCharts(); }); }); }); }
+
+    // ---------- INIT ----------
+    function prepareAndRender(retry=0){
+        // If charts still have zero width (due to layout not settled), retry once next frame.
+        const w1 = priceChart.getBoundingClientRect().width;
+        const w2 = volumeChart.getBoundingClientRect().width;
+        if((!w1 || !w2) && retry < 3){
+            requestAnimationFrame(()=>prepareAndRender(retry+1));
+            return;
+        }
+        prepareCanvas(priceChart); prepareCanvas(volumeChart);
+        renderCharts();
+        enableInteraction();
+    }
+
+    function init(){
+        elItemName.textContent = ITEM_DATA.name || `Item ${ITEM_DATA.itemId}`;
+        elItemSubtitle.textContent = `ID ${ITEM_DATA.itemId}`;
+        renderSummary();
+        initTimeframeButtons();
+        // Unhide first so layout widths are non-zero
+        elApp.hidden = false;
+        // Defer canvas sizing & rendering to next frame for accurate dimensions
+        requestAnimationFrame(()=>prepareAndRender());
+    }
+
+    // Resize listener (debounced via rAF)
+    let resizePending=false; window.addEventListener('resize',()=>{ if(resizePending) return; resizePending=true; requestAnimationFrame(()=>{ resizePending=false; prepareCanvas(priceChart); prepareCanvas(volumeChart); renderCharts(); }); });
+
+    init();
+})();
+</script>
+</body>
+</html>
