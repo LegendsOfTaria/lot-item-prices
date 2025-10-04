@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Item Search</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+    <meta name="theme-color" content="#f5f7fa" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0f1821" media="(prefers-color-scheme: dark)">
+    <style>
+        :root {
+            color-scheme: light dark;
+            --field-hpad: 22px;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            background: #f5f7fa;
+            color: #1d2731;
+            -webkit-text-size-adjust: 100%;
+            overscroll-behavior-y: none;
+        }
+
+        * {
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+            box-sizing: border-box;
+        }
+
+        header {
+            padding: 44px 20px 10px;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0 0 26px;
+            font-size: clamp(1.6rem, 2.6vw, 2.4rem);
+            letter-spacing: .5px;
+        }
+
+        #search-box {
+            max-width: 780px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        #q {
+            width: 100%;
+            padding: 16px calc(var(--field-hpad) + 42px) 16px var(--field-hpad);
+            font-size: 18px;
+            border: 1px solid #c8d4e2;
+            border-radius: 44px;
+            outline: none;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .05);
+            transition: box-shadow .15s, border-color .15s, background .2s;
+        }
+
+        #q:focus {
+            box-shadow: 0 5px 22px -6px rgba(0, 64, 160, .35);
+            border-color: #7aa7e8;
+            background: #fffefc;
+        }
+
+        #clearBtn {
+            position: absolute;
+            top: 50%;
+            right: var(--field-hpad);
+            transform: translateY(-50%);
+            background: #e7eef6;
+            color: #284760;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            display: none;
+            line-height: 1;
+        }
+
+        #clearBtn:active {
+            transform: translateY(-50%) scale(.92);
+        }
+
+        #clearBtn:hover {
+            background: #d6e3f1;
+        }
+
+        #results {
+            list-style: none;
+            margin: 30px auto 70px;
+            padding: 0;
+            max-width: 780px;
+        }
+
+        #results li {
+            background: #fff;
+            margin: 0 0 10px;
+            padding: 10px var(--field-hpad);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+            position: relative;
+            border: 1px solid #e2e9f1;
+            transition: background .15s, border-color .15s;
+        }
+
+        #results li.focused {
+            outline: 3px solid #1976d230;
+        }
+
+        #results li:active {
+            background: #f0f6fc;
+        }
+
+        #results a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+            color: #094c90;
+            flex: 1;
+            min-width: 0;
+        }
+
+        #results a:hover .name {
+            text-decoration: underline;
+        }
+
+        img.icon {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            image-rendering: crisp-edges;
+            flex-shrink: 0;
+            border-radius: 6px;
+            background: #fff;
+        }
+
+        .text-col {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .name {
+            font-weight: 600;
+            font-size: 15px;
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sub {
+            font-size: 11px;
+            opacity: .65;
+        }
+
+        .id-badge {
+            background: #e2eefc;
+            color: #134d92;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-weight: 600;
+            letter-spacing: .5px;
+            margin-left: auto;
+        }
+
+        .nothing {
+            text-align: center;
+            margin: 40px 0 80px;
+            color: #667786;
+            font-size: 15px;
+        }
+
+        mark {
+            background: #ffe28a;
+            padding: 0 2px;
+            border-radius: 3px;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 12px;
+            color: #5a6b7c;
+            margin: 50px 0 24px;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0 0 0 0);
+            border: 0;
+        }
+
+        kbd {
+            display: inline-block;
+            font: 11px/1.2 ui-monospace, monospace;
+            background: #edf2f7;
+            border: 1px solid #cfd8e2;
+            border-radius: 4px;
+            padding: 2px 5px;
+            color: #334;
+            box-shadow: 0 1px 0 #fff inset;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #0f1821;
+                color: #d8e2ec;
+            }
+
+            #q {
+                background: #162532;
+                color: #ecf6ff;
+                border-color: #2a4255;
+            }
+
+            #q:focus {
+                background: #1d3342;
+            }
+
+            #clearBtn {
+                background: #253a4b;
+                color: #b9d3e8;
+            }
+
+            #clearBtn:hover {
+                background: #304b60;
+            }
+
+            #results li {
+                background: #162532;
+                border-color: #243848;
+                box-shadow: 0 2px 4px -1px rgba(0, 0, 0, .4);
+            }
+
+            #results li:active {
+                background: #1c3344;
+            }
+
+            #results a {
+                color: #6fb6ff;
+            }
+
+            .id-badge {
+                background: #254361;
+                color: #9bcbff;
+            }
+
+            mark {
+                background: #664b00;
+                color: #ffe8a4;
+            }
+
+            .nothing {
+                color: #8ba0b3;
+            }
+
+            footer {
+                color: #6d8295;
+            }
+
+            kbd {
+                background: #233743;
+                border-color: #2f4c5d;
+                color: #b8d2e2;
+            }
+        }
+
+        /* Mobile refinements */
+        @media (max-width: 580px) {
+            header {
+                padding: 28px 14px 6px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                margin-bottom: 18px;
+            }
+
+            #search-box {
+                max-width: 100%;
+            }
+
+            #q {
+                padding: 14px calc(var(--field-hpad) + 42px) 14px var(--field-hpad);
+                font-size: 17px;
+                border-radius: 36px;
+            }
+
+            #results {
+                margin: 20px auto 56px;
+                padding: 0;
+            }
+
+            #results li {
+                padding: 12px var(--field-hpad);
+                gap: 12px;
+                border-radius: 14px;
+            }
+
+            #clearBtn {
+                right: var(--field-hpad);
+            }
+
+            img.icon {
+                width: 40px;
+                height: 40px;
+            }
+
+            .name {
+                font-size: 15px;
+            }
+
+            .sub {
+                font-size: 10px;
+            }
+
+            .id-badge {
+                font-size: 10px;
+                padding: 2px 6px;
+            }
+
+            footer {
+                margin: 40px 0 20px;
+                padding: 0 12px;
+            }
+        }
+
+        @media (hover: none) {
+            #results a:hover .name {
+                text-decoration: none;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+                animation: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Search Items</h1>
+    <div id="search-box">
+        <label for="q" class="sr-only">Search for an item by name or ID</label>
+        <input id="q" type="text" inputmode="search" enterkeyhint="search" placeholder="Type an item name or ID…"
+               autocomplete="off" autocapitalize="none" spellcheck="false" aria-expanded="false"
+               aria-controls="results"/>
+        <button id="clearBtn" type="button" aria-label="Clear search">×</button>
+    </div>
+</header>
+
+<ul id="results" role="listbox" aria-label="Search results"></ul>
+<div id="empty" class="nothing">Start typing to search items.</div>
+<div id="status" class="sr-only" role="status" aria-live="polite"></div>
+<footer>Press <kbd>Ctrl</kbd>+<kbd>K</kbd> to focus search • Client‑side search • Max 10 results • <span
+        id="count"></span></footer>
+
+<script>
+    (function () {
+        const ITEMS = [
+            {id: 1001, name: 'Iron Sword', icon: 'https://dummyimage.com/32x32&text=text=IS'},
+            {id: 1002, name: 'Steel Sword', icon: 'https://dummyimage.com/32x32&text=text=SS'},
+            {id: 1003, name: 'Silver Sword', icon: 'https://dummyimage.com/32x32&text=text=Si'},
+            {id: 1010, name: 'Wooden Shield', icon: 'https://dummyimage.com/32x32&text=text=WS'},
+            {id: 1011, name: 'Bronze Shield', icon: 'https://dummyimage.com/32x32&text=text=BS'},
+            {id: 1012, name: 'Tower Shield', icon: 'https://dummyimage.com/32x32&text=text=TS'},
+            {id: 2001, name: 'Minor Health Potion', icon: 'https://dummyimage.com/32x32&text=text=HP'},
+            {id: 2002, name: 'Greater Health Potion', icon: 'https://dummyimage.com/32x32&text=text=HP'},
+            {id: 2003, name: 'Mana Potion', icon: 'https://dummyimage.com/32x32&text=text=MP'},
+            {id: 2004, name: 'Stamina Potion', icon: 'https://dummyimage.com/32x32&text=text=SP'},
+            {id: 3001, name: 'Leather Boots', icon: 'https://dummyimage.com/32x32&text=text=LB'},
+            {id: 3002, name: 'Iron Boots', icon: 'https://dummyimage.com/32x32&text=text=IB'},
+            {id: 3003, name: 'Swift Boots', icon: 'https://dummyimage.com/32x32&text=text=SB'},
+            {id: 4001, name: 'Oak Bow', icon: 'https://dummyimage.com/32x32&text=text=OB'},
+            {id: 4002, name: 'Long Bow', icon: 'https://dummyimage.com/32x32&text=text=LB'},
+            {id: 4005, name: 'Composite Bow', icon: 'https://dummyimage.com/32x32&text=text=CB'},
+            {id: 5001, name: 'Ruby Ring', icon: 'https://dummyimage.com/32x32&text=text=RR'},
+            {id: 5002, name: 'Sapphire Ring', icon: 'https://dummyimage.com/32x32&text=text=SR'},
+            {id: 5003, name: 'Emerald Ring', icon: 'https://dummyimage.com/32x32&text=text=ER'},
+            {id: 6001, name: 'Dragon Scale', icon: 'https://dummyimage.com/32x32&text=text=DS'},
+            {id: 7001, name: 'Mystic Scroll', icon: 'https://dummyimage.com/32x32&text=text=MS'},
+            {id: 8001, name: 'Arcane Crystal', icon: 'https://dummyimage.com/32x32&text=text=AC'},
+            {id: 8100, name: 'Ancient Tome', icon: 'https://dummyimage.com/32x32&text=text=AT'},
+            {id: 8200, name: 'Runed Tablet', icon: 'https://dummyimage.com/32x32&text=text=RT'},
+            {id: 8300, name: 'Golden Feather', icon: 'https://dummyimage.com/32x32&text=text=GF'}
+        ].map(it => ({...it, _nameLower: it.name.toLowerCase()}));
+
+        const namePrefixIndex = new Map();
+        for (const item of ITEMS) {
+            const key = item._nameLower.slice(0, 2);
+            (namePrefixIndex.get(key) || namePrefixIndex.set(key, []).get(key)).push(item);
+        }
+        for (const bucket of namePrefixIndex.values()) bucket.sort((a, b) => a._nameLower.localeCompare(b._nameLower));
+
+        const input = document.getElementById('q');
+        const clearBtn = document.getElementById('clearBtn');
+        const resultsEl = document.getElementById('results');
+        const emptyEl = document.getElementById('empty');
+        const countEl = document.getElementById('count');
+        const statusEl = document.getElementById('status');
+        countEl.textContent = ITEMS.length + ' items loaded';
+
+        let lastQuery = '';
+        let keyboardIndex = -1;
+
+        function escapeHtml(str) {
+            return str.replace(/[&<>"']/g, c => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                '\'': '&#39;'
+            }[c]));
+        }
+
+        function highlight(text, q) {
+            if (!q) return escapeHtml(text);
+            const lower = text.toLowerCase();
+            const idx = lower.indexOf(q.toLowerCase());
+            if (idx === -1) return escapeHtml(text);
+            return escapeHtml(text.slice(0, idx)) + '<mark>' + escapeHtml(text.slice(idx, idx + q.length)) + '</mark>' + escapeHtml(text.slice(idx + q.length));
+        }
+
+        function score(item, q) {
+            const name = item._nameLower;
+            const idStr = String(item.id);
+            if (idStr.startsWith(q)) return 1200 - idStr.length;
+            if (name === q) return 1100 - name.length;
+            if (name.startsWith(q)) return 1000 - name.length;
+            const idx = name.indexOf(q);
+            if (idx !== -1) return 600 - idx;
+            return 0;
+        }
+
+        function performSearch(q) {
+            q = q.trim().toLowerCase();
+            if (!q) {
+                resultsEl.innerHTML = '';
+                emptyEl.textContent = 'Start typing to search items.';
+                emptyEl.hidden = false;
+                statusEl.textContent = 'No query. ' + ITEMS.length + ' items loaded.';
+                input.setAttribute('aria-expanded', 'false');
+                clearBtn.style.display = 'none';
+                keyboardIndex = -1;
+                return;
+            }
+            clearBtn.style.display = 'block';
+            emptyEl.hidden = true;
+            const isNumeric = /^[0-9]+$/.test(q);
+            const candidatePool = (!isNumeric && q.length >= 2) ? (namePrefixIndex.get(q.slice(0, 2)) || []) : ITEMS;
+            const matches = [];
+            for (const item of candidatePool) {
+                if (item._nameLower.includes(q) || String(item.id).startsWith(q)) matches.push(item);
+            }
+            if (!matches.length) {
+                resultsEl.innerHTML = '';
+                input.setAttribute('aria-expanded', 'false');
+                emptyEl.textContent = 'No results';
+                emptyEl.hidden = false;
+                statusEl.textContent = '0 results for ' + q;
+                return;
+            }
+            matches.sort((a, b) => score(b, q) - score(a, q) || a._nameLower.localeCompare(b._nameLower));
+            const top = matches.slice(0, 10);
+            statusEl.textContent = `${top.length} result${top.length !== 1 ? 's' : ''} for ${q}${matches.length > 10 ? '. Limited to 10.' : ''}`;
+            requestAnimationFrame(() => {
+                render(top, q);
+                input.setAttribute('aria-expanded', 'true');
+            });
+        }
+
+        function render(list, q) {
+            if (!list.length) {
+                resultsEl.innerHTML = '';
+                return;
+            }
+            resultsEl.innerHTML = list.map((item, i) => {
+                const url = 'items/' + item.id + '.html';
+                return `<li role="option" data-index="${i}">` +
+                    `<a href="${url}" aria-label="${escapeHtml(item.name)} (ID ${item.id})" tabindex="-1">` +
+                    `<img class="icon" src="${item.icon}" alt="" width="32" height="32" loading="lazy" decoding="async" />` +
+                    `<div class="text-col">` +
+                    `<span class="name">${highlight(item.name, q)}</span>` +
+                    `<span class="sub">ID: ${item.id}</span>` +
+                    `</div>` +
+                    `<span class="id-badge">#${item.id}</span>` +
+                    `</a></li>`;
+            }).join('');
+            keyboardIndex = -1;
+        }
+
+        let debounceTimer = null;
+        input.addEventListener('input', () => {
+            const q = input.value;
+            if (q === lastQuery) return;
+            lastQuery = q;
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => performSearch(q), 50);
+        });
+        clearBtn.addEventListener('click', () => {
+            input.value = '';
+            lastQuery = '';
+            performSearch('');
+            input.focus();
+        });
+
+        input.addEventListener('keydown', (e) => {
+            const items = [...resultsEl.querySelectorAll('li[data-index]')];
+            if (!items.length) return;
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                keyboardIndex = (keyboardIndex + 1) % items.length;
+                updateFocus(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                keyboardIndex = (keyboardIndex - 1 + items.length) % items.length;
+                updateFocus(items);
+            } else if (e.key === 'Enter') {
+                if (keyboardIndex >= 0 && items[keyboardIndex]) {
+                    items[keyboardIndex].querySelector('a')?.click();
+                } else {
+                    items[0].querySelector('a')?.click();
+                }
+            } else if (e.key === 'Escape') {
+                input.value = '';
+                lastQuery = '';
+                performSearch('');
+            }
+        });
+
+        function updateFocus(items) {
+            items.forEach(li => li.classList.remove('focused'));
+            if (keyboardIndex >= 0 && items[keyboardIndex]) {
+                const li = items[keyboardIndex];
+                li.classList.add('focused');
+                li.scrollIntoView({block: 'nearest'});
+            }
+        }
+
+        // Global shortcut: Ctrl+K (or Cmd+K on mac) focuses & selects search
+        window.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                input.focus();
+                input.select();
+            }
+        });
+
+        window.replaceItems = function (newItems) {
+            if (!Array.isArray(newItems)) return;
+            ITEMS.length = 0;
+            namePrefixIndex.clear();
+            for (const it of newItems) {
+                if (!it || typeof it.id !== 'number' || !it.name) continue;
+                const obj = {...it, _nameLower: it.name.toLowerCase()};
+                ITEMS.push(obj);
+                const key = obj._nameLower.slice(0, 2);
+                (namePrefixIndex.get(key) || namePrefixIndex.set(key, []).get(key)).push(obj);
+            }
+            for (const b of namePrefixIndex.values()) b.sort((a, b) => a._nameLower.localeCompare(b._nameLower));
+            countEl.textContent = ITEMS.length + ' items loaded';
+            performSearch(input.value);
+        };
+
+        performSearch('');
+    })();
+</script>
+</body>
+</html>
