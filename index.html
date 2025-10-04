@@ -372,7 +372,7 @@
 <script>
     (function () {
         const ITEMS = [
-            {id: 1001, name: 'Iron Sword', icon: 'https://dummyimage.com/32x32&text=text=IS'},
+            {id: 1, name: 'Iron Sword', icon: 'https://dummyimage.com/32x32&text=text=IS'},
             {id: 1002, name: 'Steel Sword', icon: 'https://dummyimage.com/32x32&text=text=SS'},
             {id: 1003, name: 'Silver Sword', icon: 'https://dummyimage.com/32x32&text=text=Si'},
             {id: 1010, name: 'Wooden Shield', icon: 'https://dummyimage.com/32x32&text=text=WS'},
@@ -399,6 +399,7 @@
             {id: 8300, name: 'Golden Feather', icon: 'https://dummyimage.com/32x32&text=text=GF'}
         ].map(it => ({...it, _nameLower: it.name.toLowerCase()}));
 
+        // Retain index creation (could be re-used for future optimization) but no longer used to restrict searches.
         const namePrefixIndex = new Map();
         for (const item of ITEMS) {
             const key = item._nameLower.slice(0, 2);
@@ -460,8 +461,10 @@
             }
             clearBtn.style.display = 'block';
             emptyEl.hidden = true;
-            const isNumeric = /^[0-9]+$/.test(q);
-            const candidatePool = (!isNumeric && q.length >= 2) ? (namePrefixIndex.get(q.slice(0, 2)) || []) : ITEMS;
+            //const isNumeric = /^[0-9]+$/.test(q);
+            // Previous optimization limited results to names sharing first two letters; removed to allow substring search anywhere.
+            // const candidatePool = (!isNumeric && q.length >= 2) ? (namePrefixIndex.get(q.slice(0, 2)) || []) : ITEMS;
+            const candidatePool = ITEMS; // Always search full list for consistent substring matching.
             const matches = [];
             for (const item of candidatePool) {
                 if (item._nameLower.includes(q) || String(item.id).startsWith(q)) matches.push(item);
