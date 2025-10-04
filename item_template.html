@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+    <title>__ITEM_TITLE__</title>
+    <meta name="color-scheme" content="light dark"/>
+    <link rel="preload" href="__ASSET_PREFIX__style.css" as="style"/>
+    <link rel="stylesheet" href="__ASSET_PREFIX__style.css"/>
+</head>
+<body>
+<header class="container">
+    <h1 id="itemName">Loading…</h1>
+    <p class="subtitle" id="itemSubtitle"></p>
+</header>
+<main class="container" id="app" hidden>
+    <section id="summary">
+        <div id="lowVolumeBanner" class="card warning" style="display:none;">
+            <div class="low-volume"><span class="icon-warn">!</span><span>This item has low volume, prices may be inaccurate.</span></div>
+            <div class="small-note" id="lowVolDetails"></div>
+            <div class="caution-note">Low-volume markets can shift sharply. Use extra caution when referencing these prices; a single trade can significantly skew averages and recent trends.</div>
+        </div>
+        <div class="flex-row" id="summaryCards"></div>
+    </section>
+
+    <section id="charts" style="display:none;">
+        <div class="chart-wrapper" id="priceChartWrap">
+            <div class="chart-header">
+                <h3>Price History (<span id="priceTfLabel">1d</span>)</h3>
+                <div class="timeframe-switch" data-chart="price">
+                    <button data-tf="1d" class="active">1d</button>
+                    <button data-tf="7d">7d</button>
+                    <button data-tf="30d">30d</button>
+                    <button data-tf="90d">90d</button>
+                    <button data-tf="1y">1y</button>
+                </div>
+            </div>
+            <canvas id="priceChart" class="chart-canvas" aria-label="Price history chart" role="img"></canvas>
+            <div class="chart-tooltip" id="priceTooltip" hidden></div>
+            <div class="small-note" id="priceChartNote"></div>
+        </div>
+
+        <div class="chart-wrapper" id="volumeChartWrap" style="margin-top:24px;">
+            <div class="chart-header">
+                <h3>Volume History (<span id="volumeTfLabel">1d</span>)</h3>
+                <div class="timeframe-switch" data-chart="volume">
+                    <button data-tf="1d" class="active">1d</button>
+                    <button data-tf="7d">7d</button>
+                    <button data-tf="30d">30d</button>
+                    <button data-tf="90d">90d</button>
+                    <button data-tf="1y">1y</button>
+                </div>
+            </div>
+            <canvas id="volumeChart" class="chart-canvas" aria-label="Volume history chart" role="img"></canvas>
+            <div class="chart-tooltip" id="volumeTooltip" hidden></div>
+            <div class="small-note" id="volumeChartNote"></div>
+        </div>
+    </section>
+
+    <div class="footer">Generated page • <span class="code">item_id.html</span> template</div>
+</main>
+<script>const ITEM_DATA=__ITEM_DATA_JSON__;</script>
+<script defer src="__ASSET_PREFIX__item_page.js"></script>
+</body>
+</html>
